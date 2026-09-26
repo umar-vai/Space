@@ -1,17 +1,1 @@
-body {
- margin:0;
- overflow:hidden;
- background:#000;
- font-family:Arial,sans-serif;
-}
-canvas {
- display:block;
- background:linear-gradient(#020024,#090979,#000);
-}
-#ui {
- position:absolute;
- top:20px;
- left:20px;
- color:white;
- font-size:24px;
-}
+*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#000;font-family:Arial,sans-serif}canvas{display:block;background:radial-gradient(circle,#101060,#000)}#ui{position:absolute;top:20px;left:20px;color:#fff;font-size:22px;font-weight:bold;text-shadow:0 0 10px #00ffff}button{padding:10px 20px}
