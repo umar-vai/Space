@@ -1,0 +1,35 @@
+name: Validate Nebula Strike
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: node --check game.js
+
+      - name: Verify required files
+        run: |
+          test -s index.html
+          test -s style.css
+          test -s game.js
+
+      - name: Smoke-test static site
+        run: |
+          python3 -m http.server 8080 >/tmp/nebula-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          sleep 1
+          curl --fail --silent --show-error http://127.0.0.1:8080/ > /tmp/nebula-index.html
+          grep -q "NEBULA STRIKE" /tmp/nebula-index.html
