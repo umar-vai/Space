@@ -1,14 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Space Shooter</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050814" />
+  <meta name="description" content="Nebula Strike — a polished browser space shooter with procedural audio, boss waves, power-ups and responsive controls." />
+  <title>Nebula Strike — Space Shooter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="ui">Score: <span id="score">0</span></div>
-<script src="game.js"></script>
+  <main id="app" class="app-shell">
+    <canvas id="game" aria-label="Nebula Strike game area"></canvas>
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header id="hud" class="hud hud--hidden" aria-live="polite">
+      <section class="hud-cluster hud-cluster--left">
+        <div class="brand-chip"><span class="brand-chip__dot"></span><span>NEBULA STRIKE</span></div>
+        <div class="hud-card hud-card--score">
+          <span class="hud-label">SCORE</span><strong id="scoreValue">000000</strong><span id="comboValue" class="combo-pill">x1</span>
+        </div>
+      </section>
+      <section class="hud-center">
+        <div class="wave-card"><span class="hud-label">SECTOR</span><strong id="waveValue">01</strong><span id="waveStatus">CLEARING HOSTILES</span></div>
+      </section>
+      <section class="hud-cluster hud-cluster--right">
+        <div class="hud-card hud-card--meter">
+          <div class="meter-copy"><span class="hud-label">SHIELD</span><span id="shieldText">100%</span></div>
+          <div class="meter-track"><span id="shieldBar" class="meter-fill meter-fill--shield"></span></div>
+        </div>
+        <div class="hud-card hud-card--meter">
+          <div class="meter-copy"><span class="hud-label">HULL</span><span id="hullText">100%</span></div>
+          <div class="meter-track"><span id="hullBar" class="meter-fill meter-fill--hull"></span></div>
+        </div>
+        <button id="soundButton" class="icon-button" type="button" aria-label="Toggle sound" title="Toggle sound"><span id="soundIcon">♪</span></button>
+        <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game" title="Pause game">Ⅱ</button>
+      </section>
+    </header>
+
+    <aside id="missionToast" class="mission-toast" aria-live="polite">
+      <span id="toastEyebrow">INCOMING WAVE</span><strong id="toastTitle">SECTOR 01</strong><span id="toastSubtitle">Hostile signatures detected</span>
+    </aside>
+
+    <section id="menuScreen" class="screen screen--visible">
+      <div class="screen__backdrop"></div>
+      <div class="hero-panel glass-panel">
+        <div class="hero-panel__flare" aria-hidden="true"></div>
+        <div class="eyebrow"><span></span> DEEP SPACE COMBAT PROTOCOL</div>
+        <h1>NEBULA<br /><em>STRIKE</em></h1>
+        <p class="hero-copy">Pilot the Aegis interceptor through hostile sectors, chain combos, collect combat upgrades and survive escalating boss encounters.</p>
+        <div class="menu-stats">
+          <div><span>BEST SCORE</span><strong id="bestScore">000000</strong></div>
+          <div><span>BEST SECTOR</span><strong id="bestWave">01</strong></div>
+          <div><span>BUILD</span><strong>1.0 // WEB</strong></div>
+        </div>
+        <div class="menu-actions">
+          <button id="startButton" class="primary-button" type="button"><span class="primary-button__glow"></span><span class="primary-button__text">LAUNCH MISSION</span><span class="primary-button__key">ENTER</span></button>
+          <button id="howButton" class="secondary-button" type="button">HOW TO PLAY</button>
+        </div>
+        <div class="controls-strip">
+          <div><kbd>WASD</kbd><span>MOVE</span></div><div><kbd>SPACE</kbd><span>FIRE</span></div><div><kbd>P</kbd><span>PAUSE</span></div><div><kbd>M</kbd><span>AUDIO</span></div>
+        </div>
+      </div>
+
+      <div class="system-card glass-panel">
+        <div class="system-card__header"><span>AEGIS // MK-IV</span><i>ONLINE</i></div>
+        <div class="ship-preview" aria-hidden="true">
+          <div class="ship-preview__ring ring-a"></div><div class="ship-preview__ring ring-b"></div><div class="ship-preview__ship">▲</div><div class="ship-preview__pulse"></div>
+        </div>
+        <div class="system-grid">
+          <div><span>WEAPON</span><strong>PULSE CANNON</strong></div><div><span>CORE</span><strong>ION DRIVE</strong></div><div><span>DEFENSE</span><strong>AUTO SHIELD</strong></div><div><span>STATUS</span><strong class="online">READY</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="howScreen" class="screen screen--modal">
+      <div class="modal-card glass-panel">
+        <button class="modal-close" id="closeHowButton" type="button" aria-label="Close">×</button>
+        <div class="eyebrow"><span></span> PILOT MANUAL</div><h2>HOW TO SURVIVE</h2>
+        <div class="manual-grid">
+          <article><b>01</b><h3>KEEP MOVING</h3><p>Use WASD or arrow keys. On touch devices, drag anywhere on the lower half of the screen.</p></article>
+          <article><b>02</b><h3>CHAIN KILLS</h3><p>Destroy enemies quickly to build your combo multiplier before the timer decays.</p></article>
+          <article><b>03</b><h3>GRAB UPGRADES</h3><p>Collect rapid fire, shield cells and repair kits dropped by hostile ships.</p></article>
+          <article><b>04</b><h3>BREAK BOSSES</h3><p>Every fifth sector introduces a command-class enemy with multiple attack patterns.</p></article>
+        </div>
+        <button id="manualLaunchButton" class="primary-button primary-button--wide" type="button"><span class="primary-button__text">UNDERSTOOD — LAUNCH</span></button>
+      </div>
+    </section>
+
+    <section id="pauseScreen" class="screen screen--modal">
+      <div class="pause-card glass-panel">
+        <div class="eyebrow"><span></span> SYSTEM HOLD</div><h2>PAUSED</h2><p>Flight controls suspended.</p>
+        <button id="resumeButton" class="primary-button primary-button--wide" type="button"><span class="primary-button__text">RESUME MISSION</span></button>
+        <button id="quitButton" class="secondary-button secondary-button--wide" type="button">ABORT TO MENU</button>
+      </div>
+    </section>
+
+    <section id="gameOverScreen" class="screen screen--modal">
+      <div class="game-over-card glass-panel">
+        <div id="gameOverEyebrow" class="eyebrow eyebrow--danger"><span></span> SIGNAL LOST</div><h2>MISSION<br /><em>FAILED</em></h2>
+        <p id="gameOverMessage">Aegis interceptor destroyed in hostile territory.</p>
+        <div class="results-grid">
+          <div><span>FINAL SCORE</span><strong id="finalScore">000000</strong></div><div><span>SECTOR</span><strong id="finalWave">01</strong></div><div><span>HOSTILES DOWN</span><strong id="finalKills">000</strong></div><div><span>MAX COMBO</span><strong id="finalCombo">x1</strong></div>
+        </div>
+        <button id="restartButton" class="primary-button primary-button--wide" type="button"><span class="primary-button__text">REDEPLOY</span><span class="primary-button__key">R</span></button>
+        <button id="menuButton" class="secondary-button secondary-button--wide" type="button">RETURN TO HANGAR</button>
+      </div>
+    </section>
+
+    <div id="mobileControls" class="mobile-controls" aria-hidden="true">
+      <div class="touch-zone"><span>DRAG TO STEER</span></div><button id="mobileFire" class="fire-button" type="button" aria-label="Fire weapon"><span>FIRE</span></button>
+    </div>
+  </main>
+  <script src="game.js"></script>
 </body>
 </html>
